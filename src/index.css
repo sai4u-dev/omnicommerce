@@ -1,1 +1,15 @@
 @import "tailwindcss";
+
+.mtdr {
+  font-family: "Stack Sans Text", sans-serif;
+}
+
+.hero {
+  background: radial-gradient(
+      1200px 600px at 10% 10%,
+      #f7d7b7 0%,
+      transparent 40%
+    ),
+    radial-gradient(800px 500px at 90% 20%, #9b5cff 0%, transparent 45%),
+    linear-gradient(135deg, #6b46ff 0%, #0b1020 55%, #000 100%);
+}
