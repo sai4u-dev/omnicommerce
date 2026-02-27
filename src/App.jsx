@@ -1,31 +1,24 @@
-// import { useState } from "react";
-import Navbar from "./components/Navbar";
-import Sidebar from "./components/Sidebar";
-import Feed from "./components/Feed";
-import RightPanel from "./components/RightPanel";
+import React from 'react'
+import { Button } from './components/ui/button'
+import { GalleryVerticalEnd } from 'lucide-react'
+import { SignUp } from './components/SignUp'
 
 export default function App() {
-  // const [open, setOpen] = useState(false);
-
   return (
-    <div className="min-h-screen bg-gray-100 ">
-      <Navbar />
+    <div>
 
-      <div className="grid grid-cols-12 gap-4 px-8 py-6">
-        <div className="col-span-2">
-          <Sidebar />
-        </div>
-
-        <div className="col-span-7 ">
-          <Feed />
-        </div>
-
-        <div className="col-span-3">
-          <RightPanel />
+      <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10 fontstyle">
+        <div className="flex w-full max-w-sm flex-col gap-6">
+          <a href="#" className="flex items-center gap-2 self-center font-medium">
+            <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
+              <GalleryVerticalEnd className="size-4" />
+            </div>
+            Omnicommerce - Bag your products.
+          </a>
+          <SignUp />
         </div>
       </div>
 
-      {/* <div open={open} setOpen={setOpen} >Sai Narendra</div> */}
     </div>
-  );
+  )
 }
