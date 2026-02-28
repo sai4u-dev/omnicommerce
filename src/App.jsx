@@ -2,8 +2,10 @@ import React from 'react'
 import { Button } from './components/ui/button'
 import { GalleryVerticalEnd } from 'lucide-react'
 import { SignUp } from './components/SignUp'
+import { Routes, Route } from 'react-router-dom'
+import Login from './pages/Login'
 
-export default function App() {
+function Home() {
   return (
     <div>
 
@@ -20,5 +22,17 @@ export default function App() {
       </div>
 
     </div>
+  )
+}
+
+export default function App() {
+  return (
+    <>
+      <Routes>
+        <Route path='/login' element={<Login />} />
+        <Route path='/signup' element={<Home />} />
+        <Route path='/' element={<Home />} />
+      </Routes>
+    </>
   )
 }

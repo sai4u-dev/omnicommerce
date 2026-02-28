@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button"
 import {
     Card,
@@ -62,7 +63,7 @@ export function SignUp() {
                             <Field>
                                 <Button type="submit">Create Account</Button>
                                 <FieldDescription className="text-center">
-                                    Already have an account? <a href="#">Sign in</a>
+                                    Already have an account? <Link to="/login">Sign in</Link>
                                 </FieldDescription>
                             </Field>
                         </FieldGroup>
@@ -73,6 +74,6 @@ export function SignUp() {
                 By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
                 and <a href="#">Privacy Policy</a>.
             </FieldDescription>
-        </div>
+        </div >
     )
 }
