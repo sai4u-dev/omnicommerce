@@ -2,6 +2,7 @@ import React from 'react'
 import { Button } from './components/ui/button'
 import { GalleryVerticalEnd } from 'lucide-react'
 import { SignUp } from './components/SignUp'
+import { Home as Hom } from './pages/Home'
 import { Routes, Route } from 'react-router-dom'
 import Login from './pages/Login'
 
@@ -31,7 +32,7 @@ export default function App() {
       <Routes>
         <Route path='/login' element={<Login />} />
         <Route path='/signup' element={<Home />} />
-        <Route path='/' element={<Home />} />
+        <Route path='/home' element={<Hom />} />
       </Routes>
     </>
   )
