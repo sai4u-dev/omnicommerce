@@ -5,6 +5,8 @@ import { SignUp } from './components/SignUp'
 import { Home as Hom } from './pages/Home'
 import { Routes, Route } from 'react-router-dom'
 import Login from './pages/Login'
+import Contact from './pages/ContactUs'
+import Filters from './pages/Filters'
 
 function Home() {
   return (
@@ -33,6 +35,8 @@ export default function App() {
         <Route path='/login' element={<Login />} />
         <Route path='/signup' element={<Home />} />
         <Route path='/home' element={<Hom />} />
+        <Route path='/filters' element={<Filters />} />
+        <Route path='/contact' element={<Contact />} />
       </Routes>
     </>
   )
