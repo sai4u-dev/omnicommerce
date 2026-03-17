@@ -25,7 +25,6 @@ import {
     ArrowUpDown,
 } from "lucide-react";
 
-// ─── Mock Data ────────────────────────────────────────────────────────────────
 const COLORS = ["#1a1a1a", "#c9a96e", "#8b7355", "#d4b896", "#f5f0e8", "#a0856c"];
 const TAGS = ["NEW", "SALE", "SOLD OUT", "LIMITED", "EXCLUSIVE"];
 
@@ -144,6 +143,8 @@ function ProductCard({ product, onWishlist }) {
                     }}
                 />
 
+                <img className="" src="https://imgs.search.brave.com/vayiu9PO2-B-5xS1uUuV8O_QnV99koQqRRNYyAAmjEE/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9zdGF0/aWMudmVjdGVlenku/Y29tL3N5c3RlbS9y/ZXNvdXJjZXMvdGh1/bWJuYWlscy8wMjIv/MjQ4LzUzMy9zbWFs/bC9wb3J0cmFpdC1v/Zi1hLXdvbWFuLWlu/LWZhc2hpb25hYmxl/LWNsb3RoZXMtb24t/YS1saWdodC1iYWNr/Z3JvdW5kLWFuZC1h/LWZhbGxpbmctc2hh/ZG93LXBob3RvLmpw/Zw" alt="" />
+
                 {/* Center monogram */}
                 <div className="absolute inset-0 flex items-center justify-center">
                     <span
@@ -162,7 +163,7 @@ function ProductCard({ product, onWishlist }) {
                 {product.tag && (
                     <div className="absolute top-2.5 left-2.5 z-10">
                         <span
-                            className="text-[9px] font-bold tracking-[0.18em] px-2 py-0.5"
+                            className="text-[9px] font-bold tracking-[0.18em] px-2 py-0.5 "
                             style={{
                                 background: product.tag === "SALE" ? "#1a1a1a" : product.tag === "SOLD OUT" ? "#6b7280" : "#c9a96e",
                                 color: "#f5f0e8",
@@ -190,7 +191,7 @@ function ProductCard({ product, onWishlist }) {
                     />
                 </button>
 
-                {/* Quick Add overlay */}
+                {/* Quick Add overlayt */}
                 <div
                     className="absolute bottom-0 left-0 right-0 flex items-center justify-center py-2.5 transition-all duration-300"
                     style={{
@@ -417,7 +418,7 @@ function FilterPanel({ filters, setFilters, priceRange, setPriceRange, onReset, 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function FashionGrid() {
     const [products, setProducts] = useState(() => generateProducts(0));
-    const [page, setPage] = useState(0);
+    const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
     const [filters, setFilters] = useState({});
@@ -426,6 +427,7 @@ export default function FashionGrid() {
     const [sortOpen, setSortOpen] = useState(false);
     const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
     const loaderRef = useRef(null);
+
 
     const activeFilterCount =
         Object.values(filters).reduce((a, v) => a + (v?.length || 0), 0) +
@@ -447,10 +449,11 @@ export default function FashionGrid() {
                 setLoading(false);
                 return;
             }
+
             setProducts((prev) => [...prev, ...generateProducts(nextPage)]);
             setPage(nextPage);
             setLoading(false);
-        }, 900);
+        }, 200);
     }, [loading, hasMore, page]);
 
     useEffect(() => {
