@@ -40,7 +40,7 @@ export function LoginForm() {
 
             console.log(res.data)
 
-            navigate("/dashboard")
+            navigate("/home")
 
         } catch (err) {
             console.log(err.response?.data)

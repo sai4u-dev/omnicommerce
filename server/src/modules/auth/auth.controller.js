@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 export const signup = async (req, res) => {
   try {
     const { name, email, phoneNumber, password } = req.body;
+    console.log(req.body);
 
     const existingUser = await User.findOne({ email });
 
@@ -73,5 +74,31 @@ export const login = async (req, res) => {
     });
   } catch (err) {
     res.status(500).json(err);
+  }
+};
+
+export const me = async (req, res) => {
+  try {
+    const token = req.cookies.token;
+
+    if (!token) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(decoded.id).select("-password");
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      user,
+    });
+  } catch (error) {
+    res.status(401).json({
+      message: "Invalid or expired token",
+    });
   }
 };

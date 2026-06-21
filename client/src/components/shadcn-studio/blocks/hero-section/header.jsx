@@ -51,7 +51,7 @@ const Header = ({ navigationData, className }) => {
               fill='var(--primary-foreground)'
             />
           </svg>
-          <span className='text-primary text-[20px] font-semibold'>Bistro</span>
+          <span className='text-primary text-[20px] font-semibold'>Omnicommerce</span>
         </a>
 
         {/* Navigation */}
