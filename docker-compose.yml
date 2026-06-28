@@ -1,0 +1,112 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: omni-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: omnicommerce
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - omni-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d omnicommerce" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mongo:
+    image: mongo:7
+    container_name: omni-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - omni-network
+
+  redis:
+    image: redis:7
+    container_name: omni-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - omni-network
+
+  commerce-api:
+    build:
+      context: ./backend-node
+      dockerfile: Dockerfile
+    container_name: omni-commerce-api
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/omnicommerce?schema=public
+      - REDIS_URL=redis://redis:6379
+      - MONGO_URL=mongodb://mongo:27017/omnicommerce
+      - JWT_SECRET=supersecretglowguidekey2026
+      - FRONTEND_URL=http://localhost:3000
+      - STRIPE_SECRET_KEY=sk_test_simulated_glowguide_secret_key_2026
+      - AI_SERVICE_URL=http://ai-api:8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_started
+      redis:
+        condition: service_started
+    networks:
+      - omni-network
+
+  ai-api:
+    build:
+      context: ./backend-ai
+      dockerfile: Dockerfile
+    container_name: omni-ai-api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/omnicommerce?schema=public
+      - MONGO_URL=mongodb://mongo:27017/omnicommerce
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_started
+    networks:
+      - omni-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: omni-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:4000
+      - VITE_AI_URL=http://localhost:8000
+    depends_on:
+      - commerce-api
+      - ai-api
+    networks:
+      - omni-network
+
+volumes:
+  postgres_data:
+  mongo_data:
+  redis_data:
+
+networks:
+  omni-network:
+    driver: bridge
