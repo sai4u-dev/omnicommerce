@@ -4,5 +4,8 @@ packages:
   - 'packages/*'
   - 'mobile-*'
   - 'desktop-*'
+
 allowBuilds:
-  electron: false
+  electron: true
+  electron-builder: true
+  esbuild: true

@@ -24,7 +24,7 @@ export default function Signup() {
       const data = await apiFetch('/api/auth/register', { method: 'POST', body: payload })
       login(data)
       setMsg({ type: 'success', text: 'Account created! Welcome to VÉLORA' })
-      navigate('/home')
+      navigate('/home', { replace: true })
     } catch (err) { setMsg({ type: 'error', text: err.message }) }
     finally { setLoading(false) }
   }

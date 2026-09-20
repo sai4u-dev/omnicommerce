@@ -69,6 +69,16 @@
       "role": "user",
       "createdAt": "2026-09-19T18:15:31.043Z",
       "addresses": []
+    },
+    {
+      "id": "72fb234b-d85d-40b8-96a9-5b86b8229f37",
+      "name": "vendor",
+      "email": "vendor@gmail.com",
+      "phone": null,
+      "passwordHash": "$2b$10$t.iU5bS4rqaRYbXu/UFLr.U.Pm6BpSnRqv7Haa6XJpbu0MvslPBRG",
+      "role": "user",
+      "createdAt": "2026-09-20T17:04:29.986Z",
+      "addresses": []
     }
   ],
   "categories": [
@@ -160,8 +170,8 @@
         "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600",
         "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=600"
       ],
-      "rating": 4.6,
-      "reviewsCount": 640,
+      "rating": 5,
+      "reviewsCount": 4,
       "stock": 140,
       "isFeatured": true,
       "vendorId": null,
@@ -413,9 +423,44 @@
       "isFeatured": true,
       "vendorId": null,
       "createdAt": "2026-09-19T18:05:55.678Z"
+    },
+    {
+      "id": "75c0336a-39ac-41e2-a597-cf65eda2607d",
+      "title": "Saree - Silk",
+      "description": "Hai",
+      "price": 50,
+      "originalPrice": 50,
+      "category": "footwear",
+      "brand": "Nikee",
+      "images": [
+        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600"
+      ],
+      "rating": 0,
+      "reviewsCount": 0,
+      "stock": 20,
+      "isFeatured": false,
+      "vendorId": "f2eddde3-84a4-4ec2-b9b5-90923fa50b90",
+      "createdAt": "2026-09-20T16:41:10.463Z"
     }
   ],
-  "carts": {},
+  "carts": {
+    "381d5f18-af62-44cd-8cdb-3021518e6110": {
+      "items": [
+        {
+          "productId": "prod-1",
+          "qty": 7
+        },
+        {
+          "productId": "prod-2",
+          "qty": 5
+        },
+        {
+          "productId": "prod-3",
+          "qty": 3
+        }
+      ]
+    }
+  },
   "wishlists": {},
   "orders": [],
   "reviews": [
@@ -436,6 +481,42 @@
       "rating": 4,
       "comment": "Great value for money, ANC is superb.",
       "createdAt": "2026-09-19T13:43:41.439Z"
+    },
+    {
+      "id": "46bd96b3-dd1b-4fad-aa64-b1d74e3e7499",
+      "productId": "prod-3",
+      "userId": "381d5f18-af62-44cd-8cdb-3021518e6110",
+      "userName": "tannirusainarendra81",
+      "rating": 5,
+      "comment": "",
+      "createdAt": "2026-09-20T17:35:48.988Z"
+    },
+    {
+      "id": "e2e3f701-64a0-4dc3-aa47-a0910533bf7e",
+      "productId": "prod-3",
+      "userId": "381d5f18-af62-44cd-8cdb-3021518e6110",
+      "userName": "tannirusainarendra81",
+      "rating": 5,
+      "comment": "",
+      "createdAt": "2026-09-20T17:35:50.716Z"
+    },
+    {
+      "id": "32966305-5de9-4b9c-9006-501275b54b9d",
+      "productId": "prod-3",
+      "userId": "381d5f18-af62-44cd-8cdb-3021518e6110",
+      "userName": "tannirusainarendra81",
+      "rating": 5,
+      "comment": "",
+      "createdAt": "2026-09-20T17:35:51.780Z"
+    },
+    {
+      "id": "ee50ce88-ea4f-46da-814b-99c310eb0d8d",
+      "productId": "prod-3",
+      "userId": "381d5f18-af62-44cd-8cdb-3021518e6110",
+      "userName": "tannirusainarendra81",
+      "rating": 5,
+      "comment": "Nice",
+      "createdAt": "2026-09-20T17:35:56.851Z"
     }
   ]
 }

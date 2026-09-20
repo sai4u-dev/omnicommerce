@@ -6,8 +6,9 @@
   "main": "electron/main.js",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"pnpm --filter frontend-vendor dev -- --port 5175\" \"wait-on http://localhost:5175 && electron .\"",
+    "dev": "wait-on http://localhost:5175 --timeout 60000 && electron .",
     "dev:electron": "electron .",
+    "dev:standalone": "concurrently \"pnpm --filter frontend-vendor dev -- --port 5175\" \"wait-on http://localhost:5175 --timeout 60000 && electron .\"",
     "build": "pnpm --filter frontend-vendor build && electron-builder",
     "build:web": "pnpm --filter frontend-vendor build",
     "pack": "electron-builder --dir",

@@ -23,7 +23,7 @@ export default function Login() {
       const data = await apiFetch('/api/auth/login', { method: 'POST', body: { email: form.email, password: form.password } })
       login(data)
       setMsg({ type: 'success', text: 'Welcome back!' })
-      navigate('/home')
+      navigate('/home', { replace: true })
     } catch (err) { setMsg({ type: 'error', text: err.message }) }
     finally { setLoading(false) }
   }
@@ -51,7 +51,7 @@ export default function Login() {
       const data = await apiFetch('/api/auth/otp/verify', { method: 'POST', body: { identifier: otpForm.identifier, otp: otpForm.otp, name: otpForm.name } })
       login(data)
       setMsg({ type: 'success', text: 'OTP verified — welcome!' })
-      navigate('/home')
+      navigate('/home', { replace: true })
     } catch (err) { setMsg({ type: 'error', text: err.message }) }
     finally { setLoading(false) }
   }

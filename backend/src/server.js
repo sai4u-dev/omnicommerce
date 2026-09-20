@@ -7,6 +7,7 @@ import categoryRoutes from './routes/categories.js'
 import cartRoutes from './routes/cart.js'
 import wishlistRoutes from './routes/wishlist.js'
 import orderRoutes from './routes/orders.js'
+import paymentRoutes from './routes/payments.js'
 import { getDb } from './db.js'
 
 validateEnv()
@@ -69,6 +70,7 @@ await app.register(categoryRoutes)
 await app.register(cartRoutes)
 await app.register(wishlistRoutes)
 await app.register(orderRoutes)
+await app.register(paymentRoutes)
 
 // ── Domain hint middleware: expose app type from header for analytics ──
 app.addHook('onRequest', async (req) => {

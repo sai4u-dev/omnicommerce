@@ -10,7 +10,8 @@
     "pnpm": ">=8"
   },
   "scripts": {
-    "dev": "turbo run dev --parallel",
+    "dev": "turbo run dev --filter=!desktop-*",
+    "dev:all": "turbo run dev",
     "dev:backend": "pnpm --filter backend dev",
     "dev:web:user": "pnpm --filter frontend-user dev -- --port 5173",
     "dev:web:admin": "pnpm --filter frontend-admin dev -- --port 5174",

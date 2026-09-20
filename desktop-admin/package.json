@@ -6,8 +6,9 @@
   "main": "electron/main.js",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"pnpm --filter frontend-admin dev -- --port 5174\" \"wait-on http://localhost:5174 && electron .\"",
+    "dev": "wait-on http://localhost:5174 --timeout 60000 && electron .",
     "dev:electron": "electron .",
+    "dev:standalone": "concurrently \"pnpm --filter frontend-admin dev -- --port 5174\" \"wait-on http://localhost:5174 --timeout 60000 && electron .\"",
     "build": "pnpm --filter frontend-admin build && electron-builder",
     "build:web": "pnpm --filter frontend-admin build",
     "pack": "electron-builder --dir",
@@ -19,18 +20,29 @@
     "electron-store": "^8.1.0"
   },
   "devDependencies": {
-    "electron": "^32.0.0",
-    "electron-builder": "^25.0.0",
     "concurrently": "^9.0.0",
+    "electron": "^32.3.3",
+    "electron-builder": "^25.0.0",
     "wait-on": "^8.0.0"
   },
   "build": {
     "appId": "com.velora.admin",
     "productName": "VÉLORA Admin",
-    "directories": { "output": "release" },
-    "files": ["electron/**/*", "../frontend-admin/dist/**/*"],
-    "win": { "target": "nsis" },
-    "mac": { "target": "dmg" },
-    "linux": { "target": "AppImage" }
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "electron/**/*",
+      "../frontend-admin/dist/**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
   }
 }

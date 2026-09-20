@@ -12,7 +12,7 @@ services:
       - NODE_ENV=${NODE_ENV:-development}
       - PORT=5000
       - HOST=0.0.0.0
-      - JWT_SECRET=${JWT_SECRET:-change-me-to-32+char-random-secret}
+      - JWT_SECRET=${JWT_SECRET:-mvvOeou2U9Gs1xMFhXJNui1TIt79OYw1Jt2EvxfwzgtSH23OePzl4x/kJmSftMF72/DxCAWtEesawyarXneN6Q==}
       - JWT_EXPIRES=7d
       - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:5176,exp://*,http://localhost:19006}
       - RATE_LIMIT_MAX=100
@@ -23,7 +23,13 @@ services:
     volumes:
       - ./backend/src/data:/app/src/data
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://localhost:5000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:5000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
       interval: 30s
       timeout: 5s
       retries: 3
