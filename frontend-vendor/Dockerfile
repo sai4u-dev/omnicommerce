@@ -1,5 +1,5 @@
 # Dev Dockerfile — Vite HMR
-FROM node:20-alpine
+FROM node:24-alpine
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@11.7.0 --activate
 COPY package.json pnpm-lock.yaml* ./

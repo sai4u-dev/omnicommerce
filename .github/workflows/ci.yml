@@ -16,7 +16,7 @@ jobs:
           version: 11.7.0
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
       - name: Install
         run: pnpm install --frozen-lockfile || pnpm install
@@ -56,7 +56,7 @@ jobs:
           version: 11.7.0
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
       - name: Install Expo
         run: pnpm install --filter mobile-user --filter mobile-vendor --filter mobile-deliveryman || echo "expo install preview"

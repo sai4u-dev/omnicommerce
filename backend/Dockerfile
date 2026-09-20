@@ -1,5 +1,5 @@
 # ─── builder (install deps) ───
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@11.7.0 --activate
 COPY package.json pnpm-lock.yaml* ./
@@ -7,7 +7,7 @@ RUN pnpm install --frozen-lockfile || pnpm install
 COPY src ./src
 
 # ─── runner (production) ───
-FROM node:20-alpine AS runner
+FROM node:24-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
