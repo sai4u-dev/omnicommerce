@@ -1,0 +1,39 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["**/.env.*local"],
+  "globalEnv": ["PORT", "JWT_SECRET", "DATABASE_URL", "VITE_API_URL", "EXPO_PUBLIC_API_URL", "ELECTRON_API_URL"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**", "build/**", "out/**", "release/**", "dist-ssr/**"],
+      "env": ["VITE_API_URL", "EXPO_PUBLIC_API_URL", "ELECTRON_API_URL"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"]
+    },
+    "clean": {
+      "cache": false
+    },
+    "start": {
+      "cache": false,
+      "persistent": true
+    },
+    "preview": {
+      "cache": false
+    },
+    "pack": {
+      "cache": false
+    },
+    "dist": {
+      "cache": false
+    }
+  }
+}

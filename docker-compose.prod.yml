@@ -1,0 +1,50 @@
+# Production overlay — use: docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+services:
+  api:
+    environment:
+      - NODE_ENV=production
+      - LOG_LEVEL=info
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+
+  web-user:
+    build:
+      context: ./frontend-user
+      dockerfile: Dockerfile.prod
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=https://api.velora.example.com
+
+  web-admin:
+    build:
+      context: ./frontend-admin
+      dockerfile: Dockerfile.prod
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=https://api.velora.example.com
+
+  web-vendor:
+    build:
+      context: ./frontend-vendor
+      dockerfile: Dockerfile.prod
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=https://api.velora.example.com
+
+  web-delivery:
+    build:
+      context: ./frontend-deliveryman
+      dockerfile: Dockerfile.prod
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=https://api.velora.example.com
+
+  nginx:
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"

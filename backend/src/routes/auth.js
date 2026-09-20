@@ -3,6 +3,7 @@ import { v4 as uuid } from 'uuid'
 import { getDb, writeDb } from '../db.js'
 import { signToken } from '../utils/jwt.js'
 import { authPreHandler } from '../utils/auth.js'
+import { env } from '../config/env.js'
 
 // In-memory OTP store: key = normalized identifier -> { otp, expiresAt, attempts, lastSentAt }
 const otpStore = new Map()
@@ -98,12 +99,13 @@ export default async function authRoutes(fastify) {
       if (cur && cur.expiresAt === expiresAt) otpStore.delete(key)
     }, OTP_TTL_MS + 1000)
 
-    // In production you'd send via SMS / Email provider. Here we return OTP for dev & log it.
+    // In production you'd send via SMS / Email provider. Here we log it.
     console.log(`[OTP] ${key} => ${otp} (expires in 5m)`)
+    const isProd = env.isProd
     return {
-      message: `OTP sent to ${isEm ? 'email' : 'phone'} (dev: OTP is ${otp})`,
+      message: `OTP sent to ${isEm ? 'email' : 'phone'}${isProd ? '' : ` (dev: OTP is ${otp})`}`,
       identifier: key,
-      otp, // <-- remove in production; kept for demo
+      ...(isProd ? {} : { otp }),
       expiresIn: 300,
       channel: isEm ? 'email' : 'phone'
     }

@@ -32,6 +32,19 @@ lerna-debug.log*
 *.sln
 *.sw?
 
+# Expo / Mobile
+.expo/
+.expo-shared/
+.web/
+# Electron
+release/
+out/
+# Desktop
+desktop-*/release/
+desktop-*/dist/
+desktop-*/out/
+
 # OS
 Thumbs.db
 .vite/
+.turbo/

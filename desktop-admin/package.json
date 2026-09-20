@@ -1,0 +1,36 @@
+{
+  "name": "desktop-admin",
+  "version": "1.0.0",
+  "private": true,
+  "description": "VÉLORA Admin Desktop — Electron wrapper for Admin Web (5174)",
+  "main": "electron/main.js",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"pnpm --filter frontend-admin dev -- --port 5174\" \"wait-on http://localhost:5174 && electron .\"",
+    "dev:electron": "electron .",
+    "build": "pnpm --filter frontend-admin build && electron-builder",
+    "build:web": "pnpm --filter frontend-admin build",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "lint": "eslint electron --ext .js",
+    "test": "echo \"desktop-admin: no tests yet\" && exit 0"
+  },
+  "dependencies": {
+    "electron-store": "^8.1.0"
+  },
+  "devDependencies": {
+    "electron": "^32.0.0",
+    "electron-builder": "^25.0.0",
+    "concurrently": "^9.0.0",
+    "wait-on": "^8.0.0"
+  },
+  "build": {
+    "appId": "com.velora.admin",
+    "productName": "VÉLORA Admin",
+    "directories": { "output": "release" },
+    "files": ["electron/**/*", "../frontend-admin/dist/**/*"],
+    "win": { "target": "nsis" },
+    "mac": { "target": "dmg" },
+    "linux": { "target": "AppImage" }
+  }
+}

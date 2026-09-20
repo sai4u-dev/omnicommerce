@@ -1,0 +1,48 @@
+{
+  "name": "omnicommerce-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "OmniCommerce - Single backend, multiple apps (Web + Mobile via Expo + Desktop via Electron)",
+  "type": "module",
+  "packageManager": "pnpm@11.7.0",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=8"
+  },
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "dev:backend": "pnpm --filter backend dev",
+    "dev:web:user": "pnpm --filter frontend-user dev -- --port 5173",
+    "dev:web:admin": "pnpm --filter frontend-admin dev -- --port 5174",
+    "dev:web:vendor": "pnpm --filter frontend-vendor dev -- --port 5175",
+    "dev:web:delivery": "pnpm --filter frontend-deliveryman dev -- --port 5176",
+    "dev:mobile:user": "pnpm --filter mobile-user start",
+    "dev:mobile:vendor": "pnpm --filter mobile-vendor start",
+    "dev:mobile:delivery": "pnpm --filter mobile-deliveryman start",
+    "dev:desktop:admin": "pnpm --filter desktop-admin dev",
+    "dev:desktop:vendor": "pnpm --filter desktop-vendor dev",
+    "build": "turbo run build",
+    "build:backend": "pnpm --filter backend build",
+    "build:web": "turbo run build --filter=frontend-*",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "docker:up": "docker compose up --build",
+    "docker:prod": "docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d",
+    "clean": "turbo run clean && rimraf node_modules",
+    "prepare": "husky || echo 'husky not installed'"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.4",
+    "rimraf": "^6.0.1",
+    "husky": "^9.1.7",
+    "prettier": "^3.6.2",
+    "eslint": "^9.18.0"
+  },
+  "workspaces": [
+    "backend",
+    "frontend-*",
+    "packages/*",
+    "mobile-*",
+    "desktop-*"
+  ]
+}

@@ -1,0 +1,8 @@
+packages:
+  - 'backend'
+  - 'frontend-*'
+  - 'packages/*'
+  - 'mobile-*'
+  - 'desktop-*'
+allowBuilds:
+  electron: false

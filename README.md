@@ -1,55 +1,57 @@
-# OmniCommerce — AI-Powered CommerceOS + VÉLORA Fashion House
+# OmniCommerce — Single Backend, Multiple Apps
 
-> **One monorepo. Two commerce experiences. Complete operations.**
+> **One monorepo. One backend. Web + Expo Mobile (Android/iOS) + Electron Desktop.**
+> Fashion + CommerceOS unified on Fastify :5000. All frontends ship from same API with `x-app-type` / `x-app-role`.
 
-OmniCommerce is a unified ecommerce operating system. The repository combines the original **CommerceOS** (AI-powered business OS — products, inventory, orders, CRM, marketing, analytics) with the newly built **VÉLORA Fashion House** — a modern clothing store (women / men / kids / footwear / accessories) with proper auth, OTP login, and editorial shopping experience.
-
-<p align="center">
-  <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react" alt="React" />
-  <img src="https://img.shields.io/badge/Fastify-5-000000?style=flat-square&logo=fastify" alt="Fastify" />
-  <img src="https://img.shields.io/badge/Node-Express-339933?style=flat-square&logo=node.js" alt="Node" />
-  <img src="https://img.shields.io/badge/AI-OpenAI_LangChain-412991?style=flat-square" alt="AI" />
-  <img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker" alt="Docker" />
-  <img src="https://img.shields.io/badge/License-Proprietary-red?style=flat-square" alt="License" />
-</p>
+![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
+![Fastify](https://img.shields.io/badge/Fastify-5-000000?style=flat-square&logo=fastify)
+![Expo](https://img.shields.io/badge/Expo-52-000020?style=flat-square&logo=expo)
+![Electron](https://img.shields.io/badge/Electron-32-47848F?style=flat-square&logo=electron)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker)
 
 ---
 
-## Table of Contents
-- [What's New — VÉLORA](#whats-new--vélora-fashion-house)
-- [Monorepo Structure](#monorepo-structure)
-- [Architecture](#architecture)
-- [Tech Stack](#tech-stack)
-- [VÉLORA Fashion Store](#vélora-fashion-store--clothing)
-- [CommerceOS](#commerceos)
-- [Quick Start](#quick-start)
-- [Environment Variables](#environment-variables)
-- [API Reference](#api-reference)
-- [Authentication & OTP](#authentication--otp-phone--email)
-- [Roles & Routing](#roles--routing)
-- [Available Scripts](#available-scripts)
-- [Deployment](#deployment)
-- [Roadmap](#roadmap)
-- [License](#license)
+## Architecture — Single Backend, Multiple Apps
 
----
+```
+                    ┌─────────────────────┐
+                    │   Backend (Fastify) │
+                    │      :5000          │
+                    │  JWT RBAC • Helmet  │
+                    │  CORS x-app-type    │
+                    │  Rate-limit • Zod   │
+                    │  Swagger /docs      │
+                    │  File JSON → PG     │
+                    └──────────┬──────────┘
+                               │  Single API surface
+        ┌──────────────────────┼──────────────────────┐
+        │                      │                      │
+   Web (Vite)          Mobile (Expo)            Desktop (Electron)
+  ─────────────        ─────────────            ─────────────
+  frontend-user        mobile-user              — (user is web+mobile)
+   :5173   Landing,    Expo Android/iOS
+           Home, Login  SecureStore, Cart
+           OTP, Cart
 
-## What's New — VÉLORA Fashion House
+  frontend-admin       —                      desktop-admin
+   :5174 Dashboard,                        Electron 32
+          Products,                        BrowserWindow
+          Orders, Users                    file:// + http://5174
 
-Added in `frontend-user` + `backend` (Fastify):
+  frontend-vendor      mobile-vendor          desktop-vendor
+   :5175 Vendor         Expo                   Electron
+          Studio,                       Vendor catalog mgmt
+          Orders, Analytics
 
-- **Auth:** Email+password + **Phone/Email OTP** (6-digit, 5-min TTL, 30s resend throttle, 3 attempts). Auto-creates user on first OTP verification.
-- **Routing:** `react-router-dom` with `ProtectedRoute` (→ `/home` requires JWT) and `PublicOnlyRoute` (→ `/home` if already auth). `AuthContext` validates token via `GET /api/auth/me`.
-- **Screens:**
-  - `Landing` (`/`) — editorial hero, brand strip, 6-category grid, editorial story, newsletter, 50k+ social proof
-  - `Home` (`/home` protected) — welcome header, search, sort (featured/price/rating), pills filter, promo strip, 4-col product grid, add-to-bag
-  - `Login` (`/login`) — tabs: Email+Password vs Phone/Email OTP (request → verify, countdown, dev OTP display)
-  - `Signup` (`/signup`) — name/email/phone/password with validation
-- **Catalog:** Fashion categories `women/men/kids/footwear/accessories/sale`, 16 curated products (dresses, denim, overcoats, sneakers...), sale discounts, featured/ratings
-- **Styling:** Editorial luxury theme (`Playfair Display` + `Cormorant Garamond` + `Inter`, ivory `--bg:#FFFDFB`, ink `--ink:#0F0F0F`, gold `--accent-2:#C9A96A`), fully responsive
-- **Backend migration:** `backend/src/db.js` → fashion categories/products, `phone` field on users, file JSON DB with auto-migration from legacy `electronics/home` data
+  frontend-deliveryman mobile-deliveryman     — (delivery web+mobile)
+   :5176 Delivery       Expo
+          Board,                        GPS, navigate, delivered
+          Earnings
+```
 
-Demo accounts: `user@shop.com / user123`, `admin@shop.com / admin123`, or OTP with any email / phone `9876543210` (OTP shown in response & server log).
+**Contract:**
+- `Authorization: Bearer <JWT>` + `x-app-type: web|mobile|desktop` + `x-app-role: user|admin|vendor|delivery`
+- Backend logs `appType/appRole`, enforces `requireRole(...)`, exposes `/api/health`, `/api/ready`, `/api/live`, `/docs` (dev).
 
 ---
 
@@ -57,305 +59,271 @@ Demo accounts: `user@shop.com / user123`, `admin@shop.com / admin123`, or OTP wi
 
 ```
 omnicommerce/
-├── README.md                 # This file
-├── docker-compose.yml        # CommerceOS stack (postgres/mongo/redis/commerce-api/ai-api/frontend)
-├── .gitignore
-│
-├── backend/                  # ★ VÉLORA — Fastify + file JSON DB (NEW)
-│   ├── src/
-│   │   ├── server.js         # Fastify + CORS, health/stats, route registration
-│   │   ├── db.js             # JSON DB, fashion seed, phone migration
-│   │   ├── routes/
-│   │   │   ├── auth.js       # register/login + OTP request/verify + me
-│   │   │   ├── products.js   # list/filter/sort/reviews, admin/vendor guards
-│   │   │   ├── categories.js
-│   │   │   ├── cart.js/wishlist.js/orders.js
-│   │   │   └── utils/auth.js,jwt.js
-│   │   └── data/db.json      # file DB (auto-created)
-│   └── package.json
-│
-├── backend-node/             # CommerceOS — Express + Prisma + Postgres/Redis/Mongo
-│   ├── prisma/schema.prisma  # 40+ tables (users/roles/products/inventory/orders/marketing/ai)
-│   ├── src/app.js, routes/, middleware/auth.js
+├── backend/                 # Fastify 5 + @fastify/* + file JSON DB (prod → Postgres)
+│   ├── src/server.js        # Helmet, CORS, Rate-limit, Swagger, Health, Graceful shutdown
+│   ├── src/config/env.js   # Zod-like validation, JWT_SECRET check in prod
+│   ├── src/db.js            # Fashion categories/products seed, file DB with migration
+│   ├── src/routes/*         # auth (OTP), products, categories, cart, wishlist, orders
+│   ├── src/plugins/security.js
 │   └── Dockerfile
 │
-├── backend-ai/               # CommerceOS — FastAPI + LangChain/OpenAI
-│   └── services/ai_agent.py, ai_search.py, ...
-│
-├── frontend/                 # CommerceOS — React + Vite main storefront (3000)
-│   └── src/pages/, components/blocks/, context/AppContext, routes/
-│
-├── frontend-user/            # ★ VÉLORA — Fashion House (NEW) — port 5173
-│   ├── src/
-│   │   ├── App.jsx           # Routes: / (Landing), /home (protected), /login,/signup (publicOnly)
-│   │   ├── context/AuthContext.jsx
-│   │   ├── api/client.js     # VITE_API_URL || http://localhost:5000
-│   │   ├── components/Navbar.jsx, ProtectedRoute.jsx
-│   │   ├── pages/Landing.jsx, Home.jsx, Login.jsx, Signup.jsx
-│   │   └── index.css         # editorial theme
-│   └── vite.config.js, index.html
-│
-├── frontend-admin/           # Admin scaffold (Vite)
-├── frontend-vendor/          # Vendor scaffold
-└── frontend-deliveryman/     # Delivery scaffold
+├── packages/
+│   ├── api-client/          # Universal client: web localStorage, mobile SecureStore, desktop preload
+│   │   └── src/index.ts     # createApiClient({baseUrl, appType, appRole, getToken})
+│   ├── types/               # Shared TS types: User, Product, Order, Cart…
+│   └── ui/                  # Shared UI tokens (buttonClasses, card…)
+
+├── frontend-user/           # VÉLORA Fashion — User Web :5173
+│   └── src/pages/Landing, Home, Login, Signup, api/client (+ x-app headers)
+├── frontend-admin/          # Admin Web :5174 — Dashboard, Products, Orders, Users (role: admin)
+├── frontend-vendor/         # Vendor Web :5175 — Studio, My Products, Orders, Analytics (role: vendor)
+└── frontend-deliveryman/    # Delivery Web :5176 — Board, Earnings, Profile (role: delivery)
+
+├── mobile-user/             # Expo 52 — Shop + Bag tabs, OTP, SecureStore
+├── mobile-vendor/           # Expo — Add product, Orders pipeline
+├── mobile-deliveryman/      # Expo — Deliveries list, Shipped/Delivered, Navigate (expo-linking)
+│   └── each: app.json, eas.json, src/api/client (SecureStore + AsyncStorage), src/navigation
+
+├── desktop-admin/           # Electron 32 — loads frontend-admin (5174 dev, file:// prod)
+│   └── electron/main.js (BrowserWindow, contextIsolation, menu), preload.js (x-app-type: desktop)
+├── desktop-vendor/          # Electron — loads frontend-vendor
+
+├── docker-compose.yml       # api + web-* (dev profiles) + nginx (prod) + postgres (optional)
+├── docker-compose.prod.yml  # prod overlay (restart, resource limits, prod VITE_API_URL)
+├── nginx/nginx.conf         # Reverse proxy: /api → api:5000, / → user, /admin/, /vendor/, /delivery/
+├── .env.example / backend/.env.example
+├── .github/workflows/ci.yml # lint, build, docker, expo-doctor, audit
+└── turbo.json + pnpm-workspace.yaml
 ```
 
 ---
 
-## Architecture
-
-### CommerceOS (Original)
-```
-Client (React Vite :3000)
-  │
-  ▼
-API Gateway
-  │
-  ├── Express :4000 ──► Postgres (pgvector) + Redis + Mongo + Stripe + Resend/WhatsApp
-  ├── FastAPI :8000 ──► OpenAI / Gemini / Vector DB (RAG)
-  └── S3 / CloudFront / ECS / Secrets Manager
-```
-
-### VÉLORA Fashion (New)
-```
-frontend-user :5173 (React Router + AuthContext)
-  │  JWT in localStorage fashion_token
-  ▼
-backend :5000 (Fastify + CORS)
-  ├── POST /api/auth/register, /login
-  ├── POST /api/auth/otp/request, /otp/verify  ──► in-memory otpStore (Map)
-  ├── GET  /api/auth/me (Bearer)
-  ├── GET  /api/products?category=&search=&sort=&featured
-  ├── GET  /api/categories
-  └── file JSON DB (backend/src/data/db.json) + JWT (jsonwebtoken)
-```
-
----
-
-## Tech Stack
-
-| Layer | CommerceOS | VÉLORA |
-|---|---|---|
-| **Frontend** | React 19, Vite, TypeScript, Tailwind, Redux Toolkit, React Query, Framer Motion, ShadCN UI | React 19, Vite, react-router-dom, Context, vanilla CSS (editorial) |
-| **Backend** | Node Express, Prisma, PostgreSQL, Redis, Mongo, JWT RBAC | Fastify 5, @fastify/cors, bcryptjs, jsonwebtoken, uuid, file JSON |
-| **AI** | OpenAI, LangChain, pgvector, RAG | — (ready for future) |
-| **Infra** | Docker Compose (postgres/mongo/redis), AWS S3/CloudFront/ECS/RDS | `pnpm dev` local (5000/5173) |
-| **Auth** | JWT + RBAC, refresh tokens | JWT (7d) + OTP (5m) + phone field |
-
----
-
-## VÉLORA Fashion Store — Clothing
-
-### Screens
-- **Landing (`/`)** — Fall/Winter 2026 hero (`Define Your Style`), 3-card visual, brand logos (VOGUE/ELLE), CategoryGrid (Women tall + Men/Accessories stack + Footwear tall + Kids + Sale promo), Editorial (Modern Essential Wardrobe), Newsletter (15% off), Footer
-- **Home (`/home`)** — Protected. Header with user greeting + search + sort, pill filters, promo strip (WELCOME20), skeleton→grid, discount badges, wishlist, `Home Editorial` styling tip
-- **Login (`/login`)** — Visual split (model image + 4.9/5 badge), tabs (Password | OTP), password eye toggle, OTP two-step (identifier → OTP+name, dev OTP inline, 30s resend), demo hint
-- **Signup (`/signup`)** — Reversed visual, benefits (15% off/early access/30-day returns), terms checkbox
-
-### Catalog
-Categories: `women` (8), `men` (5), `kids` (1), `footwear` (2), `accessories` (2), `sale` (promo). 16 products with `price/originalPrice` (sale %), `rating`, `stock`, `isFeatured`, images from Unsplash fashion.
-
----
-
-## CommerceOS
-
-See original docs below for the full enterprise OS (retained):
-
-- **AI Product Mgmt** — description/SEO/tag generation
-- **Inventory** — warehouses, movements, low-stock alerts, forecasting
-- **Orders** — tracking, refunds/returns/exchanges, labels
-- **CRM** — profiles/segments/loyalty/reviews/tickets
-- **Sales Intelligence** — best-seller/revenue/churn forecasting
-- **Marketing** — email/WhatsApp/campaigns/coupons/automation
-- **Analytics** — revenue/funnel/geo/cohort reports
-- **40+ tables**, RBAC, audit logs, rate limiting
-
-Detailed tables & modules are kept intact in this README (scroll down to original *Database Design / Application Modules*) — omitted here for brevity but preserved in git history (`4ed3c88`).
-
----
-
-## Quick Start
+## Quick Start — Single Backend, Many Frontends
 
 ### Prerequisites
-- Node 20+, `pnpm` 11, Docker Desktop, Git
-- Ports free: `4000` (commerce-api), `5000` (VÉLORA api), `3000/5173` (frontends), `5432/6379/27017/8000`
+Node 20+, pnpm 11, Docker Desktop (optional), Expo Go app (mobile), Git
 
-### Option A — Docker (CommerceOS)
-```bash
-git clone https://github.com/sai4u-dev/omnicommerce.git
-cd omnicommerce
-docker-compose up --build
-# frontend  http://localhost:3000
-# commerce-api http://localhost:4000/api/health
-# ai-api       http://localhost:8000
-```
+### 1) Backend — single source of truth
 
-### Option B — Manual (VÉLORA Fashion)
 ```bash
-# 1) VÉLORA API (Fastify file DB)
 cd backend
 pnpm install
-pnpm dev      # → http://localhost:5000  (or PORT=4000 pnpm dev)
-
-# 2) VÉLORA Storefront
-cd ../frontend-user
-pnpm install
-pnpm dev      # → http://localhost:5173
-# build: pnpm build && pnpm preview --port 5173
-
-# 3) CommerceOS services (optional)
-cd ../backend-node
-npm install
-npx prisma migrate dev && npx prisma db seed
-npm run dev    # → http://localhost:4000
-
-cd ../frontend
-pnpm install
-pnpm dev       # → http://localhost:3000
+pnpm dev      # → http://localhost:5000  (health: /api/health, docs: /docs in dev)
+# prod: NODE_ENV=production JWT_SECRET=<32+chars> pnpm start
 ```
-Set `VITE_API_URL=http://localhost:5000` in `frontend-user/.env` if VÉLORA api runs on non-5000.
+
+### 2) Web (Vite) — four role apps
+
+```bash
+# User (5173) — fashion store
+pnpm --filter frontend-user dev
+# Admin (5174) — console (admin@shop.com / admin123)
+pnpm --filter frontend-admin dev
+# Vendor (5175) — studio (vendor@shop.com / vendor123)
+pnpm --filter frontend-vendor dev
+# Delivery (5176) — board (delivery@shop.com / delivery123)
+pnpm --filter frontend-deliveryman dev
+
+# or all at once
+pnpm dev   # turbo run dev --parallel (api + 4 webs)
+```
+
+Set `VITE_API_URL=http://localhost:5000` in each `frontend-*/.env` if API non-standard.
+
+### 3) Mobile — Expo (Android/iOS)
+
+```bash
+# User
+pnpm --filter mobile-user start
+# scan QR with Expo Go; or press a/i for android/ios emulator
+
+# Vendor & Delivery similarly
+pnpm --filter mobile-vendor start
+pnpm --filter mobile-deliveryman start
+
+# Config: set EXPO_PUBLIC_API_URL=http://<your-lan-ip>:5000  (not localhost on device)
+# Example: EXPO_PUBLIC_API_URL=http://192.168.1.20:5000 pnpm --filter mobile-user start
+```
+
+*Storage:* token via `expo-secure-store` (primary) + `AsyncStorage` (fallback). `x-app-type: mobile` sent every request.
+
+### 4) Desktop — Electron
+
+```bash
+# Admin desktop wraps frontend-admin (5174)
+pnpm --filter desktop-admin dev
+# requires frontend-admin running on 5174; electron loads DEV_URL or file:// dist in prod
+
+# Vendor desktop wraps frontend-vendor (5175)
+pnpm --filter desktop-vendor dev
+
+# Build installers:
+pnpm --filter desktop-admin build   # → desktop-admin/release (nsis/dmg/AppImage)
+pnpm --filter desktop-vendor build
+# Also need web built first: pnpm --filter frontend-admin build
+```
+
+*Security:* `contextIsolation:true, nodeIntegration:false, sandbox:true`. Preload exposes only `electronAPI.getAppInfo()` + `appMeta {type: desktop, role}`. All http goes through `x-app-type: desktop`.
+
+### 5) Docker — production single-command
+
+```bash
+# Dev (api + optionally webs)
+docker compose --profile dev up --build
+# or just api
+docker compose up api --build
+
+# Prod (api + nginx serving built webs, proxy /api)
+docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod up --build -d
+# Frontend builds must have run for nginx volumes: pnpm build:web  or docker build uses Dockerfile.prod
+
+# Check
+curl http://localhost:5000/api/health
+curl http://localhost:5000/api/stats
+```
 
 ---
 
 ## Environment Variables
 
-**VÉLORA backend (`backend/src/utils/jwt.js`):**
-```
-PORT=5000
-JWT_SECRET=dev-secret-ecom-2026-please-change
-JWT_EXPIRES=7d
-```
-**VÉLORA frontend-user:**
-```
-VITE_API_URL=http://localhost:5000
-```
-
-**CommerceOS (`docker-compose.yml` / `backend-node`):**
-```
-PORT=4000
-DATABASE_URL=postgresql://postgres:postgres@postgres:5432/omnicommerce?schema=public
-REDIS_URL=redis://redis:6379
-MONGO_URL=mongodb://mongo:27017/omnicommerce
-JWT_SECRET=supersecretglowguidekey2026
-FRONTEND_URL=http://localhost:3000
-STRIPE_SECRET_KEY=sk_test_...
-AI_SERVICE_URL=http://ai-api:8000
-OPENAI_API_KEY=...
-GEMINI_API_KEY=...
-```
+| Var | Where | Default | Notes |
+|-----|-------|---------|-------|
+| `PORT` | backend | 5000 | |
+| `NODE_ENV` | all | development | `production` hides OTP in response, enables prod logging |
+| `JWT_SECRET` | backend | dev-secret… | **≥32 chars in prod, throws if default** |
+| `JWT_EXPIRES` | backend | 7d | |
+| `CORS_ORIGIN` | backend | `true` (allow all) | Prod: comma list `https://app.example.com,exp://*` |
+| `RATE_LIMIT_MAX` / `WINDOW` | backend | 100 / 60000 ms | /api/auth/otp has 30s resend throttle separate |
+| `DB_PROVIDER` | backend | file | file → `src/data/db.json` (dev), postgres (prod) |
+| `DATABASE_URL` | backend | — | When `DB_PROVIDER=postgres` |
+| `VITE_API_URL` | frontend-* | http://localhost:5000 | Injected at build time |
+| `EXPO_PUBLIC_API_URL` | mobile-* | http://localhost:5000 | Use LAN IP for device |
+| `ELECTRON_API_URL` | desktop-* | http://localhost:5000 | Overridden by `VITE_API_URL` in renderer |
 
 ---
 
-## API Reference
+## API Reference — Single Backend (`:5000`)
 
-### VÉLORA — `backend` @ `:5000`
-| Method | Path | Auth | Body | Description |
-|---|---|---|---|---|
-| GET | `/api/health` | — | — | `{status, time}` |
-| GET | `/api/stats` | — | — | `{products, users, orders, categories}` |
-| POST | `/api/auth/register` | — | `{name,email,password,phone?,role?}` | Creates user (`phone` normalized digits) → `{token,user}` |
-| POST | `/api/auth/login` | — | `{email,password}` | → `{token,user}` |
-| POST | `/api/auth/otp/request` | — | `{identifier}` | Email or phone (10-15 digits), 30s throttle → `{message, otp (dev), expiresIn, channel}` |
-| POST | `/api/auth/otp/verify` | — | `{identifier,otp,name?}` | 3 attempts, 5m TTL, auto-creates `user` → `{token,user}` |
-| GET | `/api/auth/me` | Bearer | — | → `{user}` |
-| PUT | `/api/auth/me` | Bearer | `{name,phone,addresses}` | Update profile |
-| GET | `/api/categories` | — | — | `{categories}` |
-| GET | `/api/products?search=&category=&minPrice=&maxPrice=&sort=&featured=&page=&limit=` | — | — | `{products,total,page,totalPages}` |
-| GET | `/api/products/:id` | — | — | Single |
-| POST | `/api/products` | `admin/vendor` | `{title,price,category,...}` | Create |
-| GET | `/api/products/:id/reviews` | — | — | List |
-| POST | `/api/products/:id/reviews` | Bearer | `{rating,comment}` | Add |
+| Method | Path | Auth | Body | Notes |
+|--------|------|------|------|-------|
+| GET | `/api/health` | — | — | `{status, time, uptime, env}` |
+| GET | `/api/ready` | — | — | checks db |
+| GET | `/api/live` | — | — | liveness |
+| GET | `/api/stats` | — | — | counts |
+| GET | `/docs` | — | — | Swagger (dev) |
+| POST | `/api/auth/register` | — | `{name,email,password,phone?,role?}` | role=user/vendor/delivery (admin not self-register) |
+| POST | `/api/auth/login` | — | `{email,password}` | |
+| POST | `/api/auth/otp/request` | — | `{identifier}` | 30s throttle, 5m TTL; **OTP only returned in dev** |
+| POST | `/api/auth/otp/verify` | — | `{identifier,otp,name?}` | auto-creates user if missing |
+| GET | `/api/auth/me` | Bearer | — | |
+| PUT | `/api/auth/me` | Bearer | `{name,phone,addresses}` | |
+| GET | `/api/categories` | — | — | |
+| GET | `/api/products?...` | — | — | `search,category,minPrice,maxPrice,sort,featured,page,limit` |
+| GET/POST/PUT/DELETE | `/api/products/:id` | admin/vendor | | `vendorId` binding enforced |
+| GET/POST | `/api/products/:id/reviews` | — / Bearer | | |
+| GET/POST/PUT/DELETE | `/api/cart` … | Bearer | | enriched with product |
+| GET/POST | `/api/wishlist` … | Bearer | | |
+| POST/GET | `/api/orders` | Bearer | `{shippingAddress,paymentMethod,items?}` | clear cart, decrement stock |
+| GET | `/api/orders/:id` | Bearer | | |
+| PATCH | `/api/orders/:id/status` | Bearer | `{status,deliveryManId?}` | `user` can only cancel pending |
+| POST | `/api/orders/:id/assign` | admin | `{deliveryManId}` | |
+| GET | `/api/users` | admin | | |
 
-**Demo flow:**
+**Role matrix:**
+- `user` → shop, cart, orders (own only)
+- `vendor` → manage own products, see all orders, update to processing/shipped
+- `delivery` → sees unassigned + own assigned, update to shipped/delivered
+- `admin` → full CRUD, assign delivery, manage users
+
+Demo accounts seeded in `backend/src/data/db.json` on first run: `admin@shop.com/admin123`, `vendor@shop.com/vendor123`, `delivery@shop.com/delivery123`, `user@shop.com/user123` (+ phone `9876543210`).
+
+---
+
+## Mobile Notes (Expo + React Native)
+
+- **Navigation:** `@react-navigation/native-stack` + `bottom-tabs`. `RootNavigator` wraps auth state, shows Tabs (Home/Bag for user; Products/Orders for vendor; Deliveries for delivery).
+- **Auth:** `expo-secure-store` holds JWT; `AsyncStorage` mirrors for quick reads. `AuthContext` validates via `GET /api/auth/me` on launch. `login`/`logout` clear both stores.
+- **API:** `src/api/client.js` sends `x-app-type: mobile` + `x-app-role`. `apiFetch` handles URLSearchParams for filters, auto-parses JSON, throws typed error.
+- **Builds:** `eas.json` has `development/preview/production` profiles. Production `EXPO_PUBLIC_API_URL=https://api.velora.example.com`. Run `npx eas build --platform android` / `ios`.
+- **Permissions:** Delivery mobile adds `expo-location` + `expo-notifications` (stubs for now; link to navigate via `Linking` to Google Maps).
+- **Testing on device:** Must set `EXPO_PUBLIC_API_URL` to LAN IP (`10.0.0.x`), ensure backend CORS includes `exp://*`, and device & laptop on same Wi-Fi.
+
+---
+
+## Desktop Notes (Electron)
+
+- **Why Electron:** Admins/vendors want native window, offline-cache, auto-updater, file system. Vendor desktop + Admin desktop are separate `desktop-*` workspaces, each wrapping its web build.
+- **Main:** `electron/main.js` creates `BrowserWindow 1400x900`, loads `DEV_URL (http://localhost:517X)` in dev with DevTools, or `file://…/frontend-*/dist/index.html` in prod. `autoHideMenuBar`, `hiddenInset`, `backgroundColor #FFFDFB`.
+- **Security:** `contextIsolation:true`, `nodeIntegration:false`, `sandbox:true`, `preload.js` exposes only `electronAPI.getAppInfo()` + `appMeta`. External links via `shell.openExternal`.
+- **Headers:** Renderer still sends `x-app-type: desktop`, `x-app-role: admin|vendor` via `api/client.js` (shared with web but picks up `window.appMeta` if present).
+- **Packaging:** `electron-builder` → `release/` (nsis for Win, dmg for Mac, AppImage for Linux). `pnpm --filter desktop-admin build` first builds web `frontend-admin` then electron.
+- **Updates:** stubbed `autoUpdater` can be added (electron-updater + S3/CloudFront).
+
+---
+
+## Backend Production Hardening (Already Done)
+
+- **Security:** `@fastify/helmet`, `@fastify/cors` (exposes `x-request-id`, allows `x-app-*`), `@fastify/rate-limit` (429 builder), `@fastify/sensible`.
+- **Validation:** `zod` schemas in `src/schemas/common.js` (email, phone, pagination, register/login/otp). `validate()` throws 400 with details.
+- **Auth:** `bcryptjs` (10 rounds), `jsonwebtoken` 7d, `authPreHandler` + `requireRole(...)`. OTP: `Map` with `expiresAt`, `attempts ≤3`, `lastSentAt` 30s, `setTimeout` auto-expire; **OTP removed from response in prod** (`env.isProd`).
+- **Observability:** `pino` + `pino-pretty` in dev, JSON in prod, `requestIdHeader: x-request-id`, `trustProxy:true`, structured `req.log.error` in `setErrorHandler`. Health: `/api/health`, `/api/ready` (checks db), `/api/live`.
+- **Error handling:** `setNotFoundHandler`, `setErrorHandler` (validation → 400, 429, prod 500→ “Internal server error”, includes `requestId`).
+- **Graceful:** `SIGINT/SIGTERM` → `app.close()`, `unhandledRejection`/`uncaughtException` logging, `app.listen({port, host})`.
+- **Swagger:** `@fastify/swagger` + `@fastify/swagger-ui` at `/docs` only in `isDev`.
+- **Domain hint:** `onRequest` hook exposes `req.appType / req.appRole` for analytics.
+- **DB:** File JSON with auto-migration from legacy `electronics/home` data; ensures `phone/addresses`; `writeDb()` sync. Prod switch to Postgres via `DB_PROVIDER=postgres` (future Prisma layer).
+
+---
+
+## Scripts — Root
+
 ```bash
-curl -X POST http://localhost:5000/api/auth/otp/request -H "Content-Type: application/json" -d '{"identifier":"9876543210"}'
-# → {"otp":"123456"}
-curl -X POST http://localhost:5000/api/auth/otp/verify -H "Content-Type: application/json" -d '{"identifier":"9876543210","otp":"123456"}'
-# → {"token":"eyJ...","user":{...}}
-```
+pnpm dev                # turbo run dev --parallel (all)
+pnpm dev:backend        # pnpm --filter backend dev
+pnpm dev:web:user       # pnpm --filter frontend-user dev -- --port 5173
+pnpm dev:web:admin      # pnpm --filter frontend-admin dev -- --port 5174
+pnpm dev:web:vendor     # pnpm --filter frontend-vendor dev -- --port 5175
+pnpm dev:web:delivery   # pnpm --filter frontend-deliveryman dev -- --port 5176
+pnpm dev:mobile:user    # pnpm --filter mobile-user start
+pnpm dev:mobile:vendor  # pnpm --filter mobile-vendor start
+pnpm dev:mobile:delivery# pnpm --filter mobile-deliveryman start
+pnpm dev:desktop:admin  # pnpm --filter desktop-admin dev
+pnpm dev:desktop:vendor # pnpm --filter desktop-vendor dev
 
-### CommerceOS — `backend-node` @ `:4000`
-`GET /api/health`, `POST /api/auth/register|login`, `GET /api/products`, `POST /api/cart`, `POST /api/orders`, `POST /api/payments`, `GET /admin/*` etc. See `backend-node/src/routes/`.
-
----
-
-## Authentication & OTP (Phone + Email)
-
-**Flows:**
-1. **Password:** `Signup` → `POST /api/auth/register` → JWT stored `fashion_token` + `fashion_user` → `AuthContext` → `ProtectedRoute` → `Home`
-2. **OTP Email:** `Login` OTP tab → `identifier=test@example.com` → `POST /otp/request` → server logs `[OTP] test@example.com => 123456` → response dev `otp` → user enters → `POST /otp/verify` → `login()` → `/home`
-3. **OTP Phone:** same with `identifier=9876543210` → normalized `9876543210` → auto-creates `email=9876543210@phone.local`, `phone=9876543210`
-
-**Security:** `bcrypt` passwords, `jwt` 7d, `otpStore` Map with `expiresAt`, `attempts` (≤3), `lastSentAt` (30s), console log in dev (replace with SMS/Email provider in prod by removing `otp` from response).
-
----
-
-## Roles & Routing
-
-**Roles:** `user` (default), `vendor`, `delivery`, `admin` — via `requireRole()` in `backend/src/utils/auth.js`.
-
-**Frontend-user routing (`src/App.jsx`):**
-```
- /           → Landing (public)
- /home       → ProtectedRoute → Home
- /login      → PublicOnlyRoute → Login
- /signup     → PublicOnlyRoute → Signup
- *           → Navigate to /
-```
-`PublicOnlyRoute` redirects auth users to `/home`; `ProtectedRoute` shows spinner while `AuthContext.loading` then redirects to `/login` if `!isAuthenticated`.
-
----
-
-## Available Scripts
-
-```bash
-# VÉLORA backend
-pnpm --filter backend dev        # nodemon src/server.js
-pnpm --filter backend start      # node src/server.js
-
-# VÉLORA fashion storefront
-pnpm --filter frontend-user dev      # vite
-pnpm --filter frontend-user build    # vite build
-pnpm --filter frontend-user preview  # preview 5173
-
-# Scaffolds
-pnpm --filter frontend-admin dev
-pnpm --filter frontend-vendor dev
-pnpm --filter frontend-deliveryman dev
-
-# CommerceOS
-npm --prefix backend-node run dev
-npm --prefix backend-node run seed
-pnpm --filter frontend dev           # :3000
+pnpm build              # turbo run build
+pnpm build:backend      # pnpm --filter backend build (noop)
+pnpm build:web          # turbo run build --filter=frontend-*
+pnpm lint               # turbo run lint
+pnpm test               # turbo run test
+pnpm docker:up          # docker compose up --build
+pnpm docker:prod        # docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
 ```
 
 ---
 
 ## Deployment
 
-- **VÉLORA:** Static `frontend-user/dist` + `backend` (Fastify) on any Node host (set `JWT_SECRET`, `PORT`, `VITE_API_URL`). File DB at `backend/src/data/db.json` — migrate to Postgres/Redis for prod.
-- **CommerceOS:** `docker-compose up` builds `commerce-api` + `ai-api` + `postgres/mongo/redis` + `frontend`. Or deploy to AWS ECS/RDS/S3/CloudFront as per original arch.
-- **Env:** Ensure `VITE_API_URL` points to deployed VÉLORA api (5000) and `FRONTEND_URL` for commerce-api (4000).
+- **Vercel/Netlify (Web):** Build each `frontend-*` with `VITE_API_URL=https://api.velora.example.com`. `frontend-user/dist` → user domain, `/admin/*` etc via nginx routing above or separate projects.
+- **API (Railway/Render/ECS):** `backend` `node src/server.js` with `NODE_ENV=production`, `JWT_SECRET` (32+), `CORS_ORIGIN=https://velora.example.com,https://admin.velora.example.com,exp://*`. File DB works but set `DB_PROVIDER=postgres` + `DATABASE_URL` for scale (migrate `db.js` to Prisma).
+- **Mobile (Expo EAS):** `npx eas build --platform all` with `eas.json` profiles; OTA via `npx eas update`.
+- **Desktop (Electron Builder):** `pnpm --filter desktop-admin build` artifacts in `release/`; notarize for macOS, sign for Windows; auto-updater via S3.
+- **Docker Prod:** `docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod up -d` (nginx on 80/443, api on 5000 internal).
 
 ---
 
 ## Roadmap
 
-- **Fashion Phase 2:** Cart/Wishlist persistence (`/api/cart`, `/api/wishlist`), Orders checkout, Stripe, size variants, reviews UI, admin/vendor dashboards (`frontend-admin`, `frontend-vendor`)
-- **Phase 3:** Delivery tracking (`frontend-deliveryman`), AI search (`backend-ai` integration for fashion), seasonal UI (Rainy/Summer/Winter)
-- **CommerceOS Phase 4:** Multi-store, advanced RBAC, workflow automation (retained)
+- Web: Cart persistence, Wishlist UI, Checkout (Stripe), size variants, reviews UI, admin/vendor analytics charts
+- Mobile: Push (expo-notifications), live location (expo-location) for delivery, barcode scanner for inventory, offline cart via `expo-sqlite`
+- Desktop: Offline queue, print labels (electron print), auto-updater (electron-updater + S3)
+- Backend: Postgres + Prisma for orders, Redis for OTP/rate-limit, S3 for images, WebSocket for order status
 
 ---
 
 ## Contributing
 
-PRs welcome. Keep `pnpm-lock.yaml` committed, run `pnpm build` before pushing, add tests for `backend/src/routes/auth.js` OTP, and follow existing editorial style for VÉLORA.
-
----
+PRs welcome. Keep `pnpm-lock.yaml` committed, run `pnpm build` before pushing, add tests for `auth.js` OTP, and follow editorial style for VÉLORA.
 
 ## License
 
-Proprietary. Copyright © CommerceOS & VÉLORA Fashion House. All Rights Reserved.
-
-**One Platform. Complete Commerce — from AI operating system to editorial fashion retail.**
-
+Proprietary. © CommerceOS & VÉLORA Fashion House.

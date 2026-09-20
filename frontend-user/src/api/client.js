@@ -5,7 +5,7 @@ export function getToken() {
 }
 
 export async function apiFetch(path, { method = 'GET', body, auth = false, headers = {} } = {}) {
-  const opts = { method, headers: { 'Content-Type': 'application/json', ...headers } }
+  const opts = { method, headers: { 'Content-Type': 'application/json', 'x-app-type': 'web', 'x-app-role': 'user', ...headers } }
   if (auth) {
     const t = getToken()
     if (t) opts.headers.Authorization = `Bearer ${t}`

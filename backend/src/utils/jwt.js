@@ -1,12 +1,10 @@
 import jwt from 'jsonwebtoken'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-ecom-2026-please-change'
-const JWT_EXPIRES = '7d'
+import { env } from '../config/env.js'
 
 export function signToken(payload) {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES })
+  return jwt.sign(payload, env.JWT_SECRET, { expiresIn: env.JWT_EXPIRES })
 }
 
 export function verifyToken(token) {
-  return jwt.verify(token, JWT_SECRET)
+  return jwt.verify(token, env.JWT_SECRET)
 }

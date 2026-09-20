@@ -1,0 +1,48 @@
+{
+  "expo": {
+    "name": "VÉLORA — Delivery",
+    "slug": "mobile-deliveryman",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFFDFB"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.velora.delivery",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Used for product reviews"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0F0F0F"
+      },
+      "package": "com.velora.delivery",
+      "permissions": [
+        "android.permission.INTERNET"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-secure-store"
+    ],
+    "extra": {
+      "apiUrl": "http://localhost:5000",
+      "eas": {
+        "projectId": "velora-delivery-placeholder"
+      }
+    },
+    "scheme": "velora-delivery"
+  }
+}
